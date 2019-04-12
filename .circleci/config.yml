@@ -4,38 +4,23 @@ jobs:
   build:
     docker:
       - image: circleci/node:10
-
     working_directory: ~/repo
-
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-          - dependency-cache-{{ checksum "package.json" }}
-          - dependency-cache-
-
-      - run: npm install
-
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - node_modules
-
-      - run: node index.js
+      - run:
+          name: Install Dependencies
+          command: yarn install
+      - run:
+          name: Mintable
+          command: yarn mintable
 
 workflows:
   version: 2
-
-  test:
-    jobs:
-      - build
-
-  nightly:
+  hourly:
     triggers:
       - schedule:
-          # UTC 5:00 AM – EST 12:00 AM daily
-          cron: "0 5 * * *"
+          # Hourly cron tab at 12:00, 1:00, etc.
+          cron: "0 * * * *"
           filters:
             branches:
               only:

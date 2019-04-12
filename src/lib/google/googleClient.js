@@ -1,4 +1,4 @@
-const { google } = require('googleapis');
+const { google } = require("googleapis");
 
 module.exports = new google.auth.OAuth2(
   process.env.SHEETS_CLIENT_ID,

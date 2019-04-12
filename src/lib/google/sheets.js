@@ -1,7 +1,6 @@
-const { google } = require('googleapis');
-const moment = require('moment');
-const oAuth2Client = require('./googleClient');
-const _ = require('lodash');
+const { google } = require("googleapis");
+const oAuth2Client = require("./googleClient");
+const _ = require("lodash");
 
 oAuth2Client.setCredentials({
   access_token: process.env.SHEETS_ACCESS_TOKEN,
@@ -12,44 +11,39 @@ oAuth2Client.setCredentials({
 });
 
 const sheets = google.sheets({
-  version: 'v4',
+  version: "v4",
   auth: oAuth2Client
 });
 
-exports.getSheets = async function() {
+exports.getSheets = async function(spreadsheetId) {
   return new Promise((resolve, reject) =>
-    sheets.spreadsheets.get(
-      {
-        spreadsheetId: process.env.SHEETS_SHEET_ID
-      },
-      (err, res) => {
-        if (err) {
-          console.log('Fetch failed:', err);
-          reject(err);
-        }
-        console.log(`Success! Fetched current sheets.`);
-        resolve(res.data.sheets);
+    sheets.spreadsheets.get({ spreadsheetId }, (err, res) => {
+      if (err) {
+        console.log("Fetch failed:", err);
+        reject(err);
       }
-    )
+      console.log(`Fetched current sheets.`);
+      resolve(res.data.sheets);
+    })
   );
 };
 
-exports.duplicateSheet = async function(sheetId) {
+exports.duplicateSheet = async function(sourceSpreadsheetId, sourceSheetId) {
   return new Promise((resolve, reject) =>
     sheets.spreadsheets.sheets.copyTo(
       {
-        spreadsheetId: process.env.SHEETS_SHEET_ID,
-        sheetId: sheetId,
+        spreadsheetId: sourceSpreadsheetId,
+        sheetId: sourceSheetId,
         resource: {
           destinationSpreadsheetId: process.env.SHEETS_SHEET_ID
         }
       },
       (err, res) => {
         if (err) {
-          console.log('Copy failed:', err);
+          console.log("Copy failed:", err);
           reject(err);
         }
-        console.log(`Success! Sheet copied.`);
+        console.log(`Sheet copied.`);
         resolve({ properties: res.data });
       }
     )
@@ -73,10 +67,10 @@ exports.addSheet = async function(title) {
       },
       (err, res) => {
         if (err) {
-          console.log('Add failed: ', err);
+          console.log("Add failed: ", err);
           reject(err);
         }
-        console.log(`Success! ${title} sheet added.`);
+        console.log(`${title} sheet added.`);
         resolve(res.data.replies[0].addSheet);
       }
     )
@@ -96,7 +90,7 @@ exports.renameSheet = async function(sheetId, title) {
                   sheetId: sheetId,
                   title: title
                 },
-                fields: 'title'
+                fields: "title"
               }
             }
           ]
@@ -104,10 +98,10 @@ exports.renameSheet = async function(sheetId, title) {
       },
       (err, res) => {
         if (err) {
-          console.log('Rename failed: ', err);
+          console.log("Rename failed: ", err);
           reject(err);
         }
-        console.log(`Success! ${title} sheet renamed.`);
+        console.log(`${title} sheet renamed.`);
         resolve(res.data);
       }
     )
@@ -123,10 +117,10 @@ exports.clearSheet = async function(title) {
       },
       (err, res) => {
         if (err) {
-          console.log('Clear failed: ', err);
+          console.log("Clear failed: ", err);
           reject(err);
         }
-        console.log(`Success! ${title} cleared.`);
+        console.log(`${title} cleared.`);
         resolve(res);
       }
     )
@@ -148,10 +142,10 @@ exports.updateSheet = async function(updates) {
       },
       (err, res) => {
         if (err) {
-          console.log('Update failed: ', err);
+          console.log("Update failed: ", err);
           reject(err);
         }
-        console.log(`Success! ${res.data.totalUpdatedCells} cells updated.`);
+        console.log(`${res.data.totalUpdatedCells} cells updated.`);
         resolve();
       }
     )
@@ -179,7 +173,7 @@ exports.formatHeaderRow = async function(sheetId) {
                       green: 0.3,
                       blue: 0.3
                     },
-                    horizontalAlignment: 'CENTER',
+                    horizontalAlignment: "CENTER",
                     textFormat: {
                       foregroundColor: {
                         red: 1.0,
@@ -191,7 +185,7 @@ exports.formatHeaderRow = async function(sheetId) {
                     }
                   }
                 },
-                fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)'
+                fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
               }
             },
             {
@@ -202,7 +196,7 @@ exports.formatHeaderRow = async function(sheetId) {
                     frozenRowCount: 1
                   }
                 },
-                fields: 'gridProperties.frozenRowCount'
+                fields: "gridProperties.frozenRowCount"
               }
             }
           ]
@@ -210,10 +204,10 @@ exports.formatHeaderRow = async function(sheetId) {
       },
       (err, res) => {
         if (err) {
-          console.log('Format failed: ', err);
+          console.log("Format failed: ", err);
           reject(err);
         }
-        console.log(`Success! ${sheetId} sheet formatted.`);
+        console.log(`Sheet formatted.`);
         resolve();
       }
     )
@@ -231,7 +225,7 @@ exports.resizeColumns = async function(sheetId, numColumns) {
               autoResizeDimensions: {
                 dimensions: {
                   sheetId: sheetId,
-                  dimension: 'COLUMNS',
+                  dimension: "COLUMNS",
                   startIndex: 0,
                   endIndex: numColumns
                 }
@@ -242,10 +236,10 @@ exports.resizeColumns = async function(sheetId, numColumns) {
       },
       (err, res) => {
         if (err) {
-          console.log('Resize failed: ', err);
+          console.log("Resize failed: ", err);
           reject(err);
         }
-        console.log(`Success! ${sheetId} columns resized.`);
+        console.log(`Sheet columns resized.`);
         resolve();
       }
     )
